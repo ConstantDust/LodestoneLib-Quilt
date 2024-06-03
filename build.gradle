@@ -6,17 +6,21 @@ plugins {
 archivesBaseName = project.archives_base_name
 version = project.version
 group = project.maven_group
-sourceCompatibility = 1.17 // java 17
+
+sourceCompatibility = 1.17
 targetCompatibility = 1.17
 
 repositories {
 	maven {
-		name = "Ladysnake"
-		url = "https://ladysnake.jfrog.io/artifactory/mods"
+		name = 'Ladysnake Mods'
+		url = 'https://maven.ladysnake.org/releases'
 	}
 	maven { url 'https://masa.dy.fi/maven' }
-	maven { url 'https://maven.terraformersmc.com' }
-	//maven { url = "https://jitpack.io" }
+	maven {
+		name = "TerraformersMC"
+		url = "https://maven.terraformersmc.com/"
+	}
+	maven { url = "https://jitpack.io" }
 	maven {
 		name = "Modrinth"
 		url = "https://api.modrinth.com/maven"
@@ -28,18 +32,19 @@ repositories {
 // All the default dependencies are declared at gradle/libs.version.toml and referenced with "libs.<id>"
 // See https://docs.gradle.org/current/userguide/platforms.html for information on how version catalogs work.
 dependencies {
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	minecraft libs.minecraft
 
-	mappings "org.quiltmc:quilt-mappings:1.19.3+build.1:intermediary-v2"
+	mappings variantOf(libs.quilt.mappings) { classifier 'intermediary-v2' }
+	modImplementation libs.quilt.loader
+	modImplementation libs.quilted.fabric.api
+	include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${project.mixinextras_version}")))
 
-	modImplementation "org.quiltmc:quilt-loader:${project.loader_version}"
-	modImplementation "org.quiltmc.quilted-fabric-api:quilted-fabric-api:${project.quilted_fabric_api_version}-${project.minecraft_version}"
 	modImplementation include("io.github.ladysnake:satin:${project.satin_version}")
-	modImplementation include("maven.modrinth:midnightlib:${project.midnightlib_version}-fabric")
-	modCompileOnly ("dev.emi:emi:${project.emi_version}")
-	modRuntimeOnly ("dev.emi:emi:${project.emi_version}")
+	modImplementation include("maven.modrinth:midnightlib:${project.midnightlib_version}")
 
 	modImplementation("dev.emi:trinkets:$trinkets")
+
+
 
 	//ease of multiplayer testing & game control
 	//modRuntimeOnly "carpet:fabric-carpet:${project.minecraft_version}-${project.carpet_core_version}"

@@ -3,6 +3,7 @@ package com.sammy.lodestone.systems.recipe;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.Recipe;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.world.World;
 
 public abstract class ILodestoneRecipe implements Recipe<Inventory> {
@@ -14,9 +15,7 @@ public abstract class ILodestoneRecipe implements Recipe<Inventory> {
 
 	@Deprecated
 	@Override
-	public ItemStack craft(Inventory inv) {
-		return ItemStack.EMPTY;
-	}
+	public ItemStack craft(Inventory inventory, DynamicRegistryManager registryManager) { return ItemStack.EMPTY; }
 
 	@Deprecated
 	@Override
@@ -26,9 +25,7 @@ public abstract class ILodestoneRecipe implements Recipe<Inventory> {
 
 	@Deprecated
 	@Override
-	public ItemStack getOutput() {
-		return ItemStack.EMPTY;
-	}
+	public ItemStack getResult(DynamicRegistryManager registryManager) { return ItemStack.EMPTY; }
 
 	@Override
 	public boolean isIgnoredInRecipeBook() {

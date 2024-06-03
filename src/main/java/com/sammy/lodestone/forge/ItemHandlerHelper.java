@@ -10,7 +10,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class ItemHandlerHelper {
     public static boolean canItemStacksStack(ItemStack first, ItemStack second) {
-        if (first.isEmpty() || !first.isItemEqualIgnoreDamage(second) || first.hasNbt() != second.hasNbt()) return false;
+		// TODO: this might be wrong- was : "if (first.isEmpty() || !first.equals(second).isItemEqualIgnoreDamage(second) || first.hasNbt() != second.hasNbt()) return false;"
+        if (first.isEmpty() || !first.equals(second) || first.hasNbt() != second.hasNbt()) return false;
 
         return !first.hasNbt() || first.getName().equals(second.getName());
     }
@@ -98,7 +99,7 @@ public class ItemHandlerHelper {
         if (stack.isEmpty()) return;
 
         ItemHandler inventory = new PlayerMainInvWrapper(player.getInventory());
-        World level = player.world;
+        World level = player.getWorld();
         ItemStack remainder = stack;
         if (preferredSlot >= 0 && preferredSlot < inventory.size()) {
             remainder = inventory.insertItemStack(preferredSlot, stack, false);

@@ -6,10 +6,11 @@ import com.sammy.lodestone.helpers.RenderHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.ShaderProgram;
-import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -41,29 +42,28 @@ public class VFXBuilders {
 		public BufferBuilder bufferbuilder = Tessellator.getInstance().getBufferBuilder();
 
 		public ScreenVFXBuilder setPosTexDefaultFormat() {
-			supplier = (b, l, x, y, u, v) -> b.m_rkxaaknb(l, x, y, this.zLevel).uv(u, v).next();
+			supplier = (b, l, x, y, u, v) -> b.vertex(l, x, y, this.zLevel).uv(u, v).next();
 			format = VertexFormats.POSITION_TEXTURE;
 			return this;
 		}
 
 		public ScreenVFXBuilder setPosColorDefaultFormat() {
-			supplier = (b, l, x, y, u, v) -> b.m_rkxaaknb(l, x, y, this.zLevel).color(this.r, this.g, this.b, this.a).next();
+			supplier = (b, l, x, y, u, v) -> b.vertex(l, x, y, this.zLevel).color(this.r, this.g, this.b, this.a).next();
 			format = VertexFormats.POSITION_COLOR;
 			return this;
 		}
 
 		public ScreenVFXBuilder setPosColorTexDefaultFormat() {
-			supplier = (b, l, x, y, u, v) -> b.m_rkxaaknb(l, x, y, this.zLevel).color(this.r, this.g, this.b, this.a).uv(u, v).next();
+			supplier = (b, l, x, y, u, v) -> b.vertex(l, x, y, this.zLevel).color(this.r, this.g, this.b, this.a).uv(u, v).next();
 			format = VertexFormats.POSITION_COLOR_TEXTURE;
 			return this;
 		}
 
 		public ScreenVFXBuilder setPosColorTexLightmapDefaultFormat() {
-			supplier = (b, l, x, y, u, v) -> b.m_rkxaaknb(l, x, y, this.zLevel).color(this.r, this.g, this.b, this.a).uv(u, v).light(this.light).next();
+			supplier = (b, l, x, y, u, v) -> b.vertex(l, x, y, this.zLevel).color(this.r, this.g, this.b, this.a).uv(u, v).light(this.light).next();
 			format = VertexFormats.POSITION_COLOR_TEXTURE_LIGHT;
 			return this;
 		}
-
 
 		public ScreenVFXBuilder setFormat(VertexFormat format) {
 			this.format = format;
@@ -237,20 +237,20 @@ public class VFXBuilders {
 	}
 
 	public static class WorldVFXBuilder {
-		float r = 1, g = 1, b = 1, a = 1;
-		float xOffset = 0, yOffset = 0, zOffset = 0;
-		int light = RenderHelper.FULL_BRIGHT;
-		float u0 = 0, v0 = 0, u1 = 1, v1 = 1;
+		protected float r = 1, g = 1, b = 1, a = 1;
+		protected float xOffset = 0, yOffset = 0, zOffset = 0;
+		protected int light = RenderHelper.FULL_BRIGHT;
+		protected float u0 = 0, v0 = 0, u1 = 1, v1 = 1;
 
-		VertexFormat format;
-		WorldVertexPlacementSupplier supplier;
+		protected VertexFormat format;
+		protected WorldVertexPlacementSupplier supplier;
 
 		public WorldVFXBuilder setPosColorDefaultFormat() {
 			return setVertexSupplier((c, l, x, y, z, u, v) -> {
 				if (l == null)
 					c.vertex(x, y, z).color(this.r, this.g, this.b, this.a).next();
 				else
-					c.m_rkxaaknb(l, x, y, z).color(this.r, this.g, this.b, this.a).next();
+					c.vertex(l, x, y, z).color(this.r, this.g, this.b, this.a).next();
 			}).setFormat(VertexFormats.POSITION_COLOR);
 		}
 
@@ -259,7 +259,7 @@ public class VFXBuilders {
 				if (l == null)
 					c.vertex(x, y, z).color(this.r, this.g, this.b, this.a).light(this.light).next();
 				else
-					c.m_rkxaaknb(l, x, y, z).color(this.r, this.g, this.b, this.a).light(this.light).next();
+					c.vertex(l, x, y, z).color(this.r, this.g, this.b, this.a).light(this.light).next();
 
 			}).setFormat(VertexFormats.POSITION_COLOR_LIGHT);
 		}
@@ -269,7 +269,7 @@ public class VFXBuilders {
 				if (l == null)
 					c.vertex(x, y, z).uv(u, v).next();
 				else
-					c.m_rkxaaknb(l, x, y, z).uv(u, v).next();
+					c.vertex(l, x, y, z).uv(u, v).next();
 			}).setFormat(VertexFormats.POSITION_TEXTURE);
 		}
 
@@ -278,7 +278,7 @@ public class VFXBuilders {
 				if (l == null)
 					c.vertex(x, y, z).color(this.r, this.g, this.b, this.a).uv(u, v).next();
 				else
-					c.m_rkxaaknb(l, x, y, z).color(this.r, this.g, this.b, this.a).uv(u, v).next();
+					c.vertex(l, x, y, z).color(this.r, this.g, this.b, this.a).uv(u, v).next();
 			}).setFormat(VertexFormats.POSITION_COLOR_TEXTURE);
 		}
 
@@ -287,7 +287,7 @@ public class VFXBuilders {
 				if (l == null)
 					c.vertex(x, y, z).color(this.r, this.g, this.b, this.a).uv(u, v).light(this.light).next();
 				else
-					c.m_rkxaaknb(l, x, y, z).color(this.r, this.g, this.b, this.a).uv(u, v).light(this.light).next();
+					c.vertex(l, x, y, z).color(this.r, this.g, this.b, this.a).uv(u, v).light(this.light).next();
 			}).setFormat(VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
 		}
 
@@ -341,10 +341,6 @@ public class VFXBuilders {
 			return this;
 		}
 
-		public WorldVFXBuilder setUV(Sprite sprite) {
-			return setUV(sprite.getMinU(), sprite.getMinV(), sprite.getMaxU(), sprite.getMaxV());
-		}
-
 		public WorldVFXBuilder setUV(float u0, float v0, float u1, float v1) {
 			this.u0 = u0;
 			this.v0 = v0;
@@ -369,7 +365,8 @@ public class VFXBuilders {
 			trailSegments = trailSegments.stream().map(v -> new Vector4f(v.x(), v.y(), v.z(), v.w())).collect(Collectors.toList());
 			for (Vector4f pos : trailSegments) {
 				pos.add(xOffset, yOffset, zOffset, 0);
-				pos.mul(pose);
+				pos.mulTranspose(pose);
+				//pos.transform(pose);
 			}
 
 			int count = trailSegments.size() - 1;
@@ -432,15 +429,41 @@ public class VFXBuilders {
 		}
 
 		public WorldVFXBuilder renderQuad(VertexConsumer vertexConsumer, MatrixStack stack, Vector3f[] positions, float width, float height) {
-			for (Vector3f position : positions) {
-				position.mul(width, height, width);
-			}
-			return renderQuad(vertexConsumer, stack, positions);
-		}
-
-		public WorldVFXBuilder renderQuad(VertexConsumer vertexConsumer, MatrixStack stack, Vector3f[] positions) {
 			Matrix4f last = stack.peek().getModel();
 			stack.translate(xOffset, yOffset, zOffset);
+			for (Vector3f position : positions) {
+				position.mul(width, height, width);
+				//position.multiplyComponentwise(width, height, width);
+			}
+			return getWorldVFXBuilder(vertexConsumer, stack, positions, last);
+		}
+		public WorldVFXBuilder renderScreenSpaceQuad(VertexConsumer vertexConsumer, MatrixStack stack, float size) {
+			return renderScreenSpaceQuad(vertexConsumer, stack, size, size);
+		}
+
+		public WorldVFXBuilder renderScreenSpaceQuad(VertexConsumer vertexConsumer, MatrixStack stack, float width, float height) {
+			Vector3f[] positions = new Vector3f[]{new Vector3f(-1, -1, 0), new Vector3f(1, -1, 0), new Vector3f(1, 1, 0), new Vector3f(-1, 1, 0)};
+			return renderScreenSpaceQuad(vertexConsumer, stack, positions, width, height);
+		}
+
+		public WorldVFXBuilder renderScreenSpaceQuad(VertexConsumer vertexConsumer, MatrixStack stack, Vector3f[] positions, float size) {
+			return renderScreenSpaceQuad(vertexConsumer, stack, positions, size, size);
+		}
+
+		public WorldVFXBuilder renderScreenSpaceQuad(VertexConsumer vertexConsumer, MatrixStack stack, Vector3f[] positions, float width, float height) {
+			Matrix4f last = stack.peek().getModel();
+			stack.translate(xOffset, yOffset, zOffset);
+			for (Vector3f position : positions) {
+				position.mul(width,height,width);
+				position.mulTranspose(stack.peek().getNormal());
+//				position.multiplyComponentwise(width, height, width);
+//				position.transform(stack.peek().getNormal());
+			}
+			return getWorldVFXBuilder(vertexConsumer, stack, positions, last);
+		}
+
+		@NotNull
+		private VFXBuilders.WorldVFXBuilder getWorldVFXBuilder(VertexConsumer vertexConsumer, MatrixStack stack, Vector3f[] positions, Matrix4f last) {
 			supplier.placeVertex(vertexConsumer, last, positions[0].x(), positions[0].y(), positions[0].z(), u0, v1);
 			supplier.placeVertex(vertexConsumer, last, positions[1].x(), positions[1].y(), positions[1].z(), u1, v1);
 			supplier.placeVertex(vertexConsumer, last, positions[2].x(), positions[2].y(), positions[2].z(), u1, v0);
